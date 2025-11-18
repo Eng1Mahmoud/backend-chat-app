@@ -1,0 +1,7 @@
+{
+  "watch": ["./"],
+  "ext": "ts",
+  "ignore": ["dist"],
+  "exec": "npm run build && node dist/app.js",
+  "delay": "200"
+}
