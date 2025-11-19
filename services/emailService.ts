@@ -18,6 +18,9 @@ class EmailService {
           pass: process.env.APP_PASSWORD,
         },
         secure: true, // Use TLS
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
         tls: {
           rejectUnauthorized: false, // Accept self-signed certificates in production (not recommended for production)
         },
@@ -33,6 +36,9 @@ class EmailService {
           user: process.env.EMAIL_USER || "your-email@gmail.com",
           pass: process.env.APP_PASSWORD || "your-app-password",
         },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
         tls: {
           rejectUnauthorized: false, // Accept self-signed certificates in development
         },
@@ -41,7 +47,7 @@ class EmailService {
   }
 
   async sendVerificationEmail(to: string, token: string) {
-    const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
+    const verificationLink = `${process.env.CLIENT_URL}/VerifyAccount?token=${token}`;
     const mailOptions = {
       from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
       to,

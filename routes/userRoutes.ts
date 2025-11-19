@@ -16,5 +16,13 @@ userRouter.get("/verify-email", (req, res) =>
 userRouter.post("/login", (req, res) =>
   userController.loginUser(req, res)
 );
+// Route to get user profile by ID
+userRouter.get("/:id", (req, res) =>
+  userController.getUserById(req, res)
+);
+// Route to get all users
+userRouter.get("/", (req, res) =>
+  userController.getAllUsers(req, res)
+);
 
 export { userRouter };

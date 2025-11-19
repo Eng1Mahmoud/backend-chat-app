@@ -15,5 +15,13 @@ class UserController {
   async loginUser(req: Request, res: Response) {
     return userService.loginUser(req, res);
   }
+  // Get user profile
+  async getUserById(req: Request, res: Response) {
+    return userService.getUserById(req, res);
+  }
+  // Get all users
+  async getAllUsers(req: Request, res: Response) {
+    return userService.getAllUsers(req, res);
+  }
 }
 export const userController = new UserController();
