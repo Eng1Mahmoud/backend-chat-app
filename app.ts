@@ -3,10 +3,14 @@ import cors from 'cors';
 import { createServer } from 'http';
 import dotenv from 'dotenv';
 import { Server } from 'socket.io';
+import { connectDB } from './config/DB_Connection.js';
 // routes
 import { userRouter } from './routes/userRoutes.js';
-import { connectDB } from './config/DB_Connection.js';
+import { authRouter } from './routes/authRoutes.js';
 
+// import middleware 
+import { authMiddleware } from './middleware/authMiddleware.js';
+// Load environment variables
 dotenv.config();
 // Initialize database connection after env vars are loaded
 await connectDB();
@@ -31,8 +35,11 @@ io.on('connection', (socket) => {
 app.get('/', (_req, res) => {
   res.send('Hello, World!');
 });
+//auth routes 
+app.use('/api/auth', authRouter);
 // user routes
-app.use('/api/users', userRouter);
+app.use('/api/users', authMiddleware.verifyToken, userRouter);
+
 
 const PORT = process.env.PORT || 4000;  
 
