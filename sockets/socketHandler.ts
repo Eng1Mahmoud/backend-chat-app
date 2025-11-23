@@ -36,8 +36,6 @@ export const initializeSocketIO = (io: Server) => {
     const userId = socket.user?._id;
     console.log('User connected:', userId);
     if (userId) {
-      // Update user status to online
-      await User.findByIdAndUpdate(userId, { online: true });
       // Join a room with the user's ID for private messaging
       socket.join(userId);
     }
@@ -67,9 +65,6 @@ export const initializeSocketIO = (io: Server) => {
 
     socket.on('disconnect', async () => {
       console.log('User disconnected:', userId);
-      if (userId) {
-        await User.findByIdAndUpdate(userId, { online: false });
-      }
     });
   });
 };
