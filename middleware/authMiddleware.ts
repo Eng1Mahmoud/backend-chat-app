@@ -22,7 +22,6 @@ class AuthMiddleware {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as jwt.JwtPayload;
       req.user = { _id: decoded._id as string, email: decoded.email as string };
-      console.log("Token decoded successfully. User:", decoded);
       next();
     } catch (error) {
       return res.status(401).json({ error: "Invalid token or token expired" });

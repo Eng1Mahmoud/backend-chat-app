@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import {authService} from "../services/authService.js"
-class UserController {
+class AuthController {
   // Create a new user
   async createUser(req: Request, res: Response) {
     return authService.createUser(req, res);
@@ -17,5 +17,5 @@ class UserController {
   }
 
 }
-export const authController = new UserController();
+export const authController = new AuthController();
   
