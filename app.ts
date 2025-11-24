@@ -18,32 +18,24 @@ dotenv.config();
 await connectDB();
 
 const app = express();
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app'], credentials: true }));
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app'], credentials: false }));
 // Parse JSON and URL-encoded bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, {
-  cors: {
+const io = new Server(httpServer, 
+  {
+     cors: { 
     origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app'],
-    credentials: true,
-    methods: ['GET', 'POST']
-  },
-  // Enable connection state recovery to handle session persistence
-  connectionStateRecovery: {
-    maxDisconnectionDuration: 2 * 60 * 1000, // 2 minutes
-    skipMiddlewares: true,
-  },
-  // Configure transports - try websocket first, fallback to polling
-  transports: ['websocket', 'polling'],
-  // Increase timeouts for production
-  pingTimeout: 60000,
-  pingInterval: 25000,
-  // Allow EIO3 for compatibility
-  allowEIO3: true
-});
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+     credentials: true
+     },
+     transports: ["polling", "websocket"],
+     allowEIO3: true,
+    });
 // Initialize Socket.IO with authentication and event handlers
 initializeSocketIO(io);
 
