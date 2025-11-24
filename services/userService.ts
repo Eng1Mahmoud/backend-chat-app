@@ -11,7 +11,6 @@ class UserService {
       }
       return res.json({ success: true, user });
     } catch (error: unknown) {
-      console.log(error);
       const message = error instanceof Error ? error.message : String(error);
       return res.status(400).json({ success: false, message });
     }
@@ -25,7 +24,7 @@ class UserService {
       const users = await User.find({ _id: { $ne: currentUserId } }).select("-password -verificationToken -verificationTokenExpires");
       return res.json({ success: true, users });
     } catch (error: unknown) {
-      console.log(error);
+
       const message = error instanceof Error ? error.message : String(error);
       return res.status(400).json({ success: false, message });
     }

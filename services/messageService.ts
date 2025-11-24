@@ -20,7 +20,6 @@ class MessageService {
 
       res.status(200).json(messages);
     } catch (error) {
-      console.log("Error in getMessages service: ", error);
       res.status(500).json({ error: "Internal server error" });
     }
   }
