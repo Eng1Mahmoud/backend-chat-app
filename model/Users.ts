@@ -37,6 +37,15 @@ export const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    online: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    lastSeen: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
