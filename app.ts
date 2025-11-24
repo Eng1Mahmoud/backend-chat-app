@@ -18,14 +18,14 @@ dotenv.config();
 await connectDB();
 
 const app = express();
-app.use(cors({ origin: ['http://localhost:3000','http://localhost:3001'], credentials: false }));
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'https://backend-chat-app-tft2.onrender.com'], credentials: false }));
 // Parse JSON and URL-encoded bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, { cors: { origin: ['http://localhost:3000','http://localhost:3001'], credentials: true } });
+const io = new Server(httpServer, { cors: { origin: ['http://localhost:3000', 'http://localhost:3001', 'https://backend-chat-app-tft2.onrender.com'], credentials: true } });
 // Initialize Socket.IO with authentication and event handlers
 initializeSocketIO(io);
 
@@ -41,7 +41,7 @@ app.use('/api/users', authMiddleware.verifyToken, userRouter);
 app.use('/api/messages', messageRoutes);
 
 
-const PORT = process.env.PORT || 4000;  
+const PORT = process.env.PORT || 4000;
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
