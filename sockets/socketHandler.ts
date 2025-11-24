@@ -15,7 +15,7 @@ export const initializeSocketIO = (io: Server) => {
   io.use((socket: AuthSocket, next) => {
     let token;
     const cookie = socket.handshake.headers.cookie as string; // Get the cookie from the request this cookie sended by browser 
-    const tokenCookie = cookie.split('; ').find(row => row.startsWith('token=')); // Find the token by finding the cookie that starts with token=
+    const tokenCookie = cookie?.split('; ').find(row => row.startsWith('token=')); // Find the token by finding the cookie that starts with token=
     if (tokenCookie) {
       token = tokenCookie.split('=')[1]; // remove the token= from the cookie to get the token value
     }
