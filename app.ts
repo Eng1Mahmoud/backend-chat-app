@@ -18,24 +18,32 @@ dotenv.config();
 await connectDB();
 
 const app = express();
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app'], credentials: false }));
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app'], credentials: true }));
 // Parse JSON and URL-encoded bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, 
-  {
-     cors: { 
+const io = new Server(httpServer, {
+  cors: {
     origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-     credentials: true
-     },
-     transports: ["polling", "websocket"],
-     allowEIO3: true,
-    });
+    credentials: true
+  },
+  // Polling first, then upgrade to WebSocket if possible (better for Render.com)
+  transports: ["polling", "websocket"],
+  allowEIO3: true,
+  // Connection state recovery for session persistence
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000, // 2 minutes
+    skipMiddlewares: true,
+  },
+  // Ping/pong to keep connection alive (helps with Render.com 5-min timeout)
+  pingTimeout: 60000,
+  pingInterval: 25000,
+});
 // Initialize Socket.IO with authentication and event handlers
 initializeSocketIO(io);
 
