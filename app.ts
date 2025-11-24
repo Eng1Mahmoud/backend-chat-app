@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, { cors: { origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app/'], credentials: true } });
+const io = new Server(httpServer, { cors: { origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app'], credentials: true } });
 // Initialize Socket.IO with authentication and event handlers
 initializeSocketIO(io);
 
