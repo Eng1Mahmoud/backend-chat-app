@@ -23,11 +23,6 @@ export const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
-    online: {
-      type: Boolean,
-
-      default: false,
-    },
     isVerified: {
       type: Boolean,
       default: false,
