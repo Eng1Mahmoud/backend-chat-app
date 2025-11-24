@@ -40,6 +40,12 @@ export const initializeSocketIO = (io: Server) => {
       await User.findByIdAndUpdate(userId, { online: true });
       // Join a room with the user's ID for private messaging
       socket.join(userId);
+      // Broadcast to all clients that this user is online
+      io.emit('user_online', userId);
+
+      // Send the list of currently online users to the newly connected client
+      const onlineUsers = await User.find({ online: true }).select('_id');
+      socket.emit('online_users', onlineUsers.map(user => user._id));
     }
 
     socket.on('send_message', async (data) => {
@@ -69,6 +75,8 @@ export const initializeSocketIO = (io: Server) => {
       console.log('User disconnected:', userId);
       if (userId) {
         await User.findByIdAndUpdate(userId, { online: false });
+        // Broadcast to all clients that this user is offline
+        io.emit('user_offline', userId);
       }
     });
   });
