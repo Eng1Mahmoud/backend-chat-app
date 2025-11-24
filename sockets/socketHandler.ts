@@ -21,6 +21,12 @@ export const initializeSocketIO = (io: Server) => {
       console.log('Token found in cookie:', token ? 'Yes' : 'No');
     }
 
+    // Also check auth object for token (for cross-domain support)
+    if (!token && socket.handshake.auth && socket.handshake.auth.token) {
+      token = socket.handshake.auth.token;
+      console.log('Token found in auth:', token ? 'Yes' : 'No');
+    }
+
     if (!token) {
       console.log('No token found in handshake');
       return next(new Error('Authentication error'));
