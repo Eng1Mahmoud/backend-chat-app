@@ -18,14 +18,14 @@ dotenv.config();
 await connectDB();
 
 const app = express();
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'https://backend-chat-app-tft2.onrender.com'], credentials: false }));
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app/'], credentials: false }));
 // Parse JSON and URL-encoded bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, { cors: { origin: ['http://localhost:3000', 'http://localhost:3001', 'https://backend-chat-app-tft2.onrender.com'], credentials: true } });
+const io = new Server(httpServer, { cors: { origin: ['http://localhost:3000', 'http://localhost:3001', 'https://world-chat-apps.vercel.app/'], credentials: true } });
 // Initialize Socket.IO with authentication and event handlers
 initializeSocketIO(io);
 
