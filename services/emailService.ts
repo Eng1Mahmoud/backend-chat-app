@@ -18,9 +18,6 @@ class EmailService {
           pass: process.env.APP_PASSWORD,
         },
         secure: true, // Use TLS
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
         tls: {
           rejectUnauthorized: false, // Accept self-signed certificates in production (not recommended for production)
         },
