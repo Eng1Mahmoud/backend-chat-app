@@ -52,7 +52,7 @@ export const initializeSocketIO = (io: Server) => {
       // Send the list of currently online users to the newly connected client
       const onlineUsers = await User.find({ online: true }).select('_id');
       const onlineUserIds = onlineUsers.map(user => user._id);
-     
+
       socket.emit('online_users', onlineUserIds);
     }
 
@@ -77,6 +77,26 @@ export const initializeSocketIO = (io: Server) => {
       } catch (error) {
         console.error('Error sending message:', error);
       }
+    });
+
+    // Handle typing indicator
+    socket.on('user_typing', (data) => {
+      const { receiverId } = data;
+      const senderId = socket.user?._id;
+      if (!senderId || !receiverId) return;
+
+      // Emit to receiver that sender is typing
+      io.to(receiverId).emit('user_typing', { userId: senderId });
+    });
+
+    // Handle stopped typing indicator
+    socket.on('user_stopped_typing', (data) => {
+      const { receiverId } = data;
+      const senderId = socket.user?._id;
+      if (!senderId || !receiverId) return;
+
+      // Emit to receiver that sender stopped typing
+      io.to(receiverId).emit('user_stopped_typing', { userId: senderId });
     });
 
     socket.on('disconnect', async () => {
