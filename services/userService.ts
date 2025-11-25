@@ -21,7 +21,7 @@ class UserService {
     try {
       const currentUserId = req.user?._id;
       // get all users except the current user
-      const users = await User.find({ _id: { $ne: currentUserId } }).select("-password -verificationToken -verificationTokenExpires");
+      const users = await User.find({ _id: { $ne: currentUserId }, isVerified: true }).select("-password -verificationToken -verificationTokenExpires");
       return res.json({ success: true, users });
     } catch (error: unknown) {
 

@@ -9,38 +9,21 @@ class EmailService {
     this.createTransporter();
   }
   private createTransporter() {
-    if (process.env.NODE_ENV === "production") {
-      // Production configuration (e.g., SendGrid, Mailgun, AWS SES)
-      this.transporter = nodemailer.createTransport({
-        service: process.env.EMAIL_SERVICE || "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.APP_PASSWORD,
-        },
-        secure: true, // Use TLS
-        tls: {
-          rejectUnauthorized: false, // Accept self-signed certificates in production (not recommended for production)
-        },
-      });
-    } else {
-      // Development configuration - using Gmail for testing
-      // You can also use Mailtrap, Ethereal Email, or other testing services
-      this.transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // Use STARTTLS
-        auth: {
-          user: process.env.EMAIL_USER || "your-email@gmail.com",
-          pass: process.env.APP_PASSWORD || "your-app-password",
-        },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
-        tls: {
-          rejectUnauthorized: false, // Accept self-signed certificates in development
-        },
-      });
-    }
+    // configuration using Gmail OAuth2 (Bypasses SMTP port restrictions)
+    this.transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: process.env.EMAIL_USER,
+        clientId: process.env.GMAIL_CLIENT_ID,
+        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
   }
 
   async sendVerificationEmail(to: string, token: string) {
@@ -48,10 +31,56 @@ class EmailService {
     const mailOptions = {
       from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
       to,
-      subject: "Email Verification",
-      html: `<p>Please verify your email by clicking the link below:</p>
-        <a href="${verificationLink}">Verify Email</a>
-        <p>This link will expire in 24 hours.</p>`,
+      subject: "Verify your email for Chat App",
+      html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verify Your Email</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 40px 0; text-align: center;">
+              <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                <!-- Header -->
+                <div style="background: linear-gradient(to right, #6366f1, #a855f7, #ec4899); padding: 30px 20px; text-align: center;">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Welcome to Chat App!</h1>
+                </div>
+                
+                <!-- Content -->
+                <div style="padding: 40px 30px; text-align: left;">
+                  <h2 style="margin-top: 0; color: #18181b; font-size: 20px; font-weight: 600;">Verify your email address</h2>
+                  <p style="margin: 16px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+                    Thanks for signing up! We're excited to have you on board. Please confirm your account by clicking the button below.
+                  </p>
+                  
+                  <div style="text-align: center; margin: 32px 0;">
+                    <a href="${verificationLink}" style="display: inline-block; padding: 14px 32px; background-color: #6366f1; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; transition: background-color 0.3s ease;">
+                      Verify Account
+                    </a>
+                  </div>
+                  
+                  <p style="margin: 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+                    This link will expire in 24 hours. If you didn't create an account, you can safely ignore this email.
+                  </p>
+                </div>
+                
+                <!-- Footer -->
+                <div style="background-color: #fafafa; padding: 20px; text-align: center; border-top: 1px solid #e4e4e7;">
+                  <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
+                    &copy; ${new Date().getFullYear()} Chat App. All rights reserved.
+                  </p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+      `,
     };
     try {
       await this.transporter!.sendMail(mailOptions);
