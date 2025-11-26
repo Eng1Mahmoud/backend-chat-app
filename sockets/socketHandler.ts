@@ -99,6 +99,26 @@ export const initializeSocketIO = (io: Server) => {
       io.to(receiverId).emit('user_stopped_typing', { userId: senderId });
     });
 
+    // Handle mark as read
+    socket.on('mark_as_read', async (data) => {
+      const { senderId } = data; // The user whose messages are being read
+      const receiverId = socket.user?._id; // The user reading the messages
+
+      if (!senderId || !receiverId) return;
+
+      try {
+        await Message.updateMany(
+          { sender: senderId, receiver: receiverId, status: { $ne: 'read' } },
+          { $set: { status: 'read' } }
+        );
+
+        // Notify the sender that their messages have been read
+        io.to(senderId).emit('messages_read_update', { receiverId, status: 'read' });
+      } catch (error) {
+        console.error('Error marking messages as read:', error);
+      }
+    });
+
     socket.on('disconnect', async () => {
       if (userId) {
         // Update user's online status in the database
