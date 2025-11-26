@@ -1,38 +1,26 @@
+import Mailjet from "node-mailjet";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
 
 dotenv.config();
 
 class EmailService {
-  private transporter: nodemailer.Transporter | undefined;
-  constructor() {
-    this.createTransporter();
-  }
-  private createTransporter() {
-    // configuration using Gmail OAuth2 (Bypasses SMTP port restrictions)
-    this.transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: process.env.EMAIL_USER,
-        clientId: process.env.GMAIL_CLIENT_ID,
-        clientSecret: process.env.GMAIL_CLIENT_SECRET,
-        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
+  private mailjet: any;
 
+  constructor() {
+    // Initialize Mailjet with API keys
+    this.mailjet = new Mailjet.Client({
+      apiKey: process.env.MJ_APIKEY,
+      apiSecret: process.env.MJ_SECRETKEY,
+    });
   }
 
   async sendVerificationEmail(to: string, token: string) {
     const verificationLink = `${process.env.CLIENT_URL}/VerifyAccount?token=${token}`;
-    const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_USER}>`,
-      to,
-      subject: "Verify your email for Chat App",
-      html: `
+
+    const senderEmail = process.env.EMAIL_FROM;
+    const senderName = process.env.EMAIL_FROM_NAME || "Chat App";
+
+    const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -80,12 +68,34 @@ class EmailService {
         </table>
       </body>
       </html>
-      `,
-    };
+    `;
+
     try {
-      await this.transporter!.sendMail(mailOptions);
-    } catch (error) {
-      console.error("Error sending verification email:", error);
+      const request = this.mailjet.post("send", { version: "v3.1" }).request({
+        Messages: [
+          {
+            From: {
+              Email: senderEmail,
+              Name: senderName,
+            },
+            To: [
+              {
+                Email: to,
+                Name: "User",
+              },
+            ],
+            Subject: "Verify your email for Chat App",
+            HTMLPart: htmlContent,
+            TextPart: `Please verify your email by clicking the following link: ${verificationLink}`,
+          },
+        ],
+      });
+
+      // Send the email
+     await request;
+    
+    } catch (error: any) {
+      console.error("❌ Error sending verification email:", error.statusCode, error.message);
     }
   }
 }
