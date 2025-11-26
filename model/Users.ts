@@ -42,10 +42,6 @@ export const userSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
-    lastSeen: {
-      type: Date,
-      default: null,
-    },
   },
   { timestamps: true }
 );

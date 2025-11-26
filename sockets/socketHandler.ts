@@ -122,7 +122,7 @@ export const initializeSocketIO = (io: Server) => {
     socket.on('disconnect', async () => {
       if (userId) {
         // Update user's online status in the database
-        const updateResult = await User.findByIdAndUpdate(userId, { online: false, lastSeen: new Date() });
+        const updateResult = await User.findByIdAndUpdate(userId, { online: false });
         // Broadcast to all clients that this user is offline
         io.emit('user_offline', userId);
       }
