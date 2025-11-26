@@ -92,10 +92,91 @@ class EmailService {
       });
 
       // Send the email
-     await request;
-    
+      await request;
     } catch (error: any) {
       console.error("❌ Error sending verification email:", error.statusCode, error.message);
+    }
+  }
+
+  async sendPasswordResetEmail(to: string, token: string) {
+    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+    const senderEmail = process.env.EMAIL_FROM;
+    const senderName = process.env.EMAIL_FROM_NAME || "Chat App";
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset Your Password</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 40px 0; text-align: center;">
+              <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                <!-- Header -->
+                <div style="background: linear-gradient(to right, #6366f1, #a855f7, #ec4899); padding: 30px 20px; text-align: center;">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Reset Password Request</h1>
+                </div>
+                
+                <!-- Content -->
+                <div style="padding: 40px 30px; text-align: left;">
+                  <h2 style="margin-top: 0; color: #18181b; font-size: 20px; font-weight: 600;">Reset your password</h2>
+                  <p style="margin: 16px 0; color: #52525b; font-size: 16px; line-height: 1.5;">
+                    We received a request to reset your password. Click the button below to create a new password.
+                  </p>
+                  
+                  <div style="text-align: center; margin: 32px 0;">
+                    <a href="${resetLink}" style="display: inline-block; padding: 14px 32px; background-color: #6366f1; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; transition: background-color 0.3s ease;">
+                      Reset Password
+                    </a>
+                  </div>
+                  
+                  <p style="margin: 0; color: #71717a; font-size: 14px; line-height: 1.5;">
+                    This link will expire in 1 hour. If you didn't request a password reset, you can safely ignore this email.
+                  </p>
+                </div>
+                
+                <!-- Footer -->
+                <div style="background-color: #fafafa; padding: 20px; text-align: center; border-top: 1px solid #e4e4e7;">
+                  <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
+                    &copy; ${new Date().getFullYear()} Chat App. All rights reserved.
+                  </p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    try {
+      const request = this.mailjet.post("send", { version: "v3.1" }).request({
+        Messages: [
+          {
+            From: {
+              Email: senderEmail,
+              Name: senderName,
+            },
+            To: [
+              {
+                Email: to,
+                Name: "User",
+              },
+            ],
+            Subject: "Reset your password for Chat App",
+            HTMLPart: htmlContent,
+            TextPart: `Please reset your password by clicking the following link: ${resetLink}`,
+          },
+        ],
+      });
+
+      await request;
+    } catch (error: any) {
+      console.error("❌ Error sending password reset email:", error.statusCode, error.message);
     }
   }
 }

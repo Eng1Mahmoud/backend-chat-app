@@ -8,6 +8,5 @@ const messageSchema = new mongoose.Schema(
     status: { type: String, enum: ["sent", "delivered", "read"], default: "sent" },
   },
   { timestamps: true }
-
 );
 export const Message = mongoose.model("Message", messageSchema);

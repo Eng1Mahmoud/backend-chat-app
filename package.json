@@ -9,7 +9,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/app.js",
-    "dev": "nodemon "
+    "dev": "nodemon ",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -30,5 +32,8 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
   }
 }
