@@ -143,10 +143,13 @@ export const initializeSocketIO = (io: Server) => {
 
     socket.on("disconnect", async () => {
       if (userId) {
-        // Update user's online status in the database
-        const updateResult = await User.findByIdAndUpdate(userId, { online: false });
-        // Broadcast to all clients that this user is offline
-        io.emit("user_offline", userId);
+        // check if user closed all tabs that he open until emit user_offline event
+        const room = io.sockets.adapter.rooms.get(userId);
+        if (!room || room?.size === 0) {
+          io.emit("user_offline", userId);
+          // Update user's online status in the database
+          const updateResult = await User.findByIdAndUpdate(userId, { online: false });
+        }
       }
     });
   });
