@@ -30,11 +30,16 @@ The project follows a standard MVC-like structure:
 ## Setup & Installation
 
 1.  **Prerequisites**: Node.js and MongoDB installed.
-2.  **Install Dependencies**:
+2.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/Eng1Mahmoud/backend-chat-app.git
+    cd backend-chat-app
+    ```
+3.  **Install Dependencies**:
     ```bash
     npm install
     ```
-3.  **Environment Variables**: Create a `.env` file in the root directory with the following variables:
+4.  **Environment Variables**: Create a `.env` file in the root directory with the following variables:
     ```env
     PORT=4000
     MONGO_URI=your_mongodb_connection_string
@@ -45,11 +50,11 @@ The project follows a standard MVC-like structure:
     # Client URL for CORS
     CLIENT_URL=http://localhost:3000
     ```
-4.  **Run Development Server**:
+5.  **Run Development Server**:
     ```bash
     npm run dev
     ```
-5.  **Build & Start Production**:
+6.  **Build & Start Production**:
     ```bash
     npm run build
     npm start
@@ -74,7 +79,7 @@ _Requires Authentication Header: `Authorization: Bearer <token>`_
 | Method | Endpoint   | Description              |
 | :----- | :--------- | :----------------------- |
 | `GET`  | `/profile` | Get current user profile |
-| `GET`  | `/`        | Get all users            |
+| `GET`  | `/`        | Get all users. Response includes `unreadCount` for each user. |
 
 ### Messages (`/api/messages`)
 
@@ -104,10 +109,12 @@ The backend listens for and emits the following events. Authentication is handle
 | :--------------------- | :------------------------------- | :-------------------------------------------------------- |
 | `user_online`          | `userId`                         | Broadcast when a user comes online.                       |
 | `online_users`         | `[userIds]`                      | Sent to a newly connected user with list of online users. |
+| `unread_counts`        | `{ userId: count }`              | Sent to a newly connected user with initial unread counts.|
 | `receive_message`      | `Message` object                 | Received by both sender and receiver.                     |
 | `user_typing`          | `{ userId }`                     | Notification that a user is typing.                       |
 | `user_stopped_typing`  | `{ userId }`                     | Notification that a user stopped typing.                  |
 | `messages_read_update` | `{ receiverId, status: 'read' }` | Notify sender that their messages were read.              |
+| `unread_count_update`  | `{ userId, count }`              | Update the unread message count for a specific user.      |
 | `user_offline`         | `userId`                         | Broadcast when a user goes offline.                       |
 
 ## Database Schema
