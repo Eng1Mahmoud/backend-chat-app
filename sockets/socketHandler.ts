@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { Message } from "../model/Messages.js";
 import { User } from "../model/Users.js";
 import { verifyToken } from "../utils/authUtils.js";
+import { messageService } from "../services/messageService.js";
 
 interface AuthSocket extends Socket {
   user?: {
@@ -55,6 +56,10 @@ export const initializeSocketIO = (io: Server) => {
       const onlineUserIds = onlineUsers.map((user) => user._id);
 
       socket.emit("online_users", onlineUserIds);
+
+      // Send initial unread message counts
+      const unreadCounts = await messageService.getUnreadCounts(userId);
+      socket.emit("unread_counts", unreadCounts);
     }
 
     socket.on("send_message", async (data) => {
@@ -74,6 +79,17 @@ export const initializeSocketIO = (io: Server) => {
         io.to(receiverId).emit("receive_message", newMessage);
         // Emit to sender
         io.to(senderId).emit("receive_message", newMessage);
+
+        // Calculate and emit updated unread count to receiver
+        const unreadCount = await Message.countDocuments({
+          sender: senderId,
+          receiver: receiverId,
+          status: { $ne: "read" },
+        });
+        io.to(receiverId).emit("unread_count_update", {
+          senderId,
+          count: unreadCount,
+        });
       } catch (error) {
         console.error("Error sending message:", error);
       }
@@ -114,6 +130,12 @@ export const initializeSocketIO = (io: Server) => {
 
         // Notify the sender that their messages have been read
         io.to(senderId).emit("messages_read_update", { receiverId, status: "read" });
+
+        // Clear unread count for receiver
+        io.to(receiverId).emit("unread_count_update", {
+          senderId,
+          count: 0,
+        });
       } catch (error) {
         console.error("Error marking messages as read:", error);
       }

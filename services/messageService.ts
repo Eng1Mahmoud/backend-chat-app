@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Message } from "../model/Messages.js";
+import mongoose from "mongoose";
 
 class MessageService {
   async getMessages(req: Request, res: Response) {
@@ -21,6 +22,37 @@ class MessageService {
       res.status(200).json(messages);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  // Get unread message counts for a user (from all senders)
+  async getUnreadCounts(userId: string): Promise<Record<string, number>> {
+    try {
+      const unreadCounts = await Message.aggregate([
+        {
+          $match: {
+            receiver: new mongoose.Types.ObjectId(userId),
+            status: { $ne: "read" },
+          },
+        },
+        {
+          $group: {
+            _id: "$sender",
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      // Convert to { senderId: count } object
+      const countsMap: Record<string, number> = {};
+      unreadCounts.forEach((item) => {
+        countsMap[item._id.toString()] = item.count;
+      });
+
+      return countsMap;
+    } catch (error) {
+      console.error("Error getting unread counts:", error);
+      return {};
     }
   }
 }
